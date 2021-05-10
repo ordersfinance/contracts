@@ -1,0 +1,6 @@
+.DS_Store
+.env
+build/
+node_modules/
+test/
+truffle-config.js

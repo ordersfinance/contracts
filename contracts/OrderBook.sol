@@ -105,16 +105,18 @@ contract OrderBook {
     Order storage order = orders[_baseToken][_quoteToken][index];
     uint256 amount = _amount > order.amount ? order.amount : _amount;
 
-    uint256 payAmount = amount * order.price;
+    // token prices are always expressed with 18 decimals
+    uint256 payAmount = amount * order.price / 10**18;
+
     uint feeAmount = payAmount / 500;
     bool feeOn = feeTo != address(0);
 
     if (address(_quoteToken) == BNB) {
       if (feeOn) {
-        require(msg.value == amount * order.price + feeAmount, 'Incorrect amount paid');
+        require(msg.value == payAmount + feeAmount, 'Incorrect amount paid');
         payable(feeTo).transfer(feeAmount);
       } else {
-        require(msg.value == amount * order.price, 'Incorrect amount paid');
+        require(msg.value == payAmount, 'Incorrect amount paid');
       }
       payable(address(order.maker)).transfer(payAmount);
     } else {
